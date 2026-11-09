@@ -23,6 +23,12 @@ SUSPICIOUS_PATHS = {
 }
 
 
+def configure_console() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
 def analyze(path: Path, failed_threshold: int, missing_threshold: int) -> dict:
     parsed = 0
     malformed = 0
@@ -68,6 +74,7 @@ def analyze(path: Path, failed_threshold: int, missing_threshold: int) -> dict:
 
 
 def main() -> int:
+    configure_console()
     parser = argparse.ArgumentParser(description="Yerel Apache/Nginx access log dosyasını özetle.")
     parser.add_argument("logfile", type=Path, help="İncelenecek access log dosyası")
     parser.add_argument("--failed-threshold", type=int, default=8,
@@ -103,3 +110,4 @@ if __name__ == "__main__":
     except OSError as error:
         print(f"Dosya okunamadı: {error}", file=sys.stderr)
         raise SystemExit(2)
+
